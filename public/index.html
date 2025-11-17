@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slack学習アプリ - インタラクティブチュートリアル</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>📚 Slack学習アプリ</h1>
+                <p>インタラクティブにSlackの使い方を学ぼう</p>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-info">
+                    <span>学習進捗</span>
+                    <span id="progress-percentage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar with Categories -->
+            <aside class="sidebar">
+                <h2>カテゴリー</h2>
+                <div id="categories-list" class="categories-list">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </aside>
+
+            <!-- Lessons Area -->
+            <section class="lessons-area">
+                <!-- Welcome Screen -->
+                <div id="welcome-screen" class="welcome-screen">
+                    <h2>Slack学習アプリへようこそ！</h2>
+                    <p>このアプリでは、Slackの基本的な使い方から応用機能まで、インタラクティブに学習できます。</p>
+                    <div class="features">
+                        <div class="feature-card">
+                            <span class="feature-icon">📖</span>
+                            <h3>ステップバイステップ</h3>
+                            <p>段階的に学習できる構成</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">✅</span>
+                            <h3>クイズで理解度チェック</h3>
+                            <p>各レッスン後にクイズで確認</p>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">🎯</span>
+                            <h3>進捗管理</h3>
+                            <p>学習の進み具合を可視化</p>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="app.showLessonsList()">学習を始める</button>
+                </div>
+
+                <!-- Lessons List -->
+                <div id="lessons-list" class="lessons-list" style="display: none;">
+                    <h2 id="category-title">すべてのレッスン</h2>
+                    <div id="lessons-grid" class="lessons-grid">
+                        <!-- Lessons will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Lesson Detail -->
+                <div id="lesson-detail" class="lesson-detail" style="display: none;">
+                    <button class="btn-back" onclick="app.showLessonsList()">← レッスン一覧に戻る</button>
+                    <div id="lesson-content">
+                        <!-- Lesson content will be loaded here -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quiz-modal" class="modal">
+        <div class="modal-content">
+            <h3>理解度チェック</h3>
+            <div id="quiz-content"></div>
+            <div id="quiz-result" style="display: none;"></div>
+            <div class="modal-actions">
+                <button id="submit-quiz-btn" class="btn-primary">回答する</button>
+                <button id="next-lesson-btn" class="btn-secondary" style="display: none;">次のレッスンへ</button>
+                <button class="btn-secondary" onclick="app.closeQuizModal()">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
