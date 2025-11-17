@@ -1,8 +1,8 @@
-# Slack学習アプリ
+# Slack学習アプリ v2.0
 
-Slackの使い方を学習するためのインタラクティブなウェブアプリケーションです。
+Slackの使い方を学習するための**モダンなインタラクティブWebアプリケーション**です。
 
-## 特徴
+## 🎯 コンセプト
 
 - **ステップバイステップ学習**: 基本操作から応用機能まで段階的に学習
 - **カテゴリー別コンテンツ**: 基本操作、メッセージング、応用機能の3カテゴリー
@@ -10,13 +10,21 @@ Slackの使い方を学習するためのインタラクティブなウェブア
 - **進捗管理**: 学習の進み具合を可視化
 - **レスポンシブデザイン**: デスクトップ・モバイル両対応
 
-## 技術スタック
+## 🚀 技術スタック
 
-- **バックエンド**: Node.js + Express + TypeScript
-- **フロントエンド**: HTML5 + CSS3 + Vanilla JavaScript
-- **スタイリング**: カスタムCSS（Slackライクなデザイン）
+### バックエンド
+- **Node.js** + **Express** + **TypeScript**
+- RESTful API設計
+- CORS対応
 
-## セットアップ
+### フロントエンド
+- **React 18** + **TypeScript**
+- **Vite** (高速ビルドツール)
+- **Tailwind CSS** (モダンなスタイリング)
+- React Context API (状態管理)
+- カスタムフック
+
+## 🛠️ セットアップ
 
 ### 前提条件
 
@@ -32,58 +40,78 @@ git clone <repository-url>
 cd bord_proje
 ```
 
-2. 依存関係をインストール
+2. すべての依存関係をインストール
 
 ```bash
-npm install
+npm run install:all
 ```
 
-3. TypeScriptをビルド
+または手動で：
 
 ```bash
-npm run build
+cd server && npm install
+cd ../client && npm install
 ```
 
 ### 開発モード
 
-開発モードでサーバーを起動（ホットリロード有効）:
+開発モードで両方のサーバーを同時起動（推奨）:
 
 ```bash
 npm run dev
 ```
 
-### 本番モード
-
-本番用にビルドして起動:
+または個別に起動：
 
 ```bash
+# ターミナル1: バックエンドサーバー (ポート3001)
+npm run dev:server
+
+# ターミナル2: フロントエンド開発サーバー (ポート3000)
+npm run dev:client
+```
+
+- フロントエンド: http://localhost:3000
+- バックエンドAPI: http://localhost:3001
+
+### 本番ビルド
+
+```bash
+# ビルド
 npm run build
+
+# サーバー起動
 npm start
 ```
 
-サーバーは `http://localhost:3000` で起動します。
-
-## プロジェクト構造
+## 📁 プロジェクト構造
 
 ```
 bord_proje/
-├── src/
-│   ├── server.ts           # Expressサーバー
-│   └── data/
-│       └── lessons.ts      # 学習コンテンツデータ
-├── public/
-│   ├── index.html          # メインHTML
-│   ├── css/
-│   │   └── styles.css      # スタイルシート
-│   └── js/
-│       └── app.js          # フロントエンドロジック
-├── dist/                   # TypeScriptビルド出力
-├── package.json
-├── tsconfig.json
+├── client/              # Reactフロントエンド
+│   ├── src/
+│   │   ├── components/  # Reactコンポーネント
+│   │   ├── context/     # Context API
+│   │   ├── hooks/       # カスタムフック
+│   │   ├── types/       # TypeScript型定義
+│   │   ├── api/         # APIクライアント
+│   │   ├── App.tsx      # メインアプリ
+│   │   └── main.tsx     # エントリーポイント
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.ts
+├── server/              # Expressバックエンド
+│   ├── src/
+│   │   ├── routes/      # APIルート
+│   │   ├── data/        # レッスンデータ
+│   │   └── server.ts    # サーバーエントリーポイント
+│   ├── package.json
+│   └── tsconfig.json
+├── package.json         # ルートpackage.json
 └── README.md
 ```
 
-## 学習コンテンツ
+## 🎓 学習コンテンツ
 
 ### 基本操作
 - Slackとは？
@@ -97,7 +125,7 @@ bord_proje/
 - スレッド機能
 - ファイル共有とアプリ連携
 
-## API エンドポイント
+## 🔌 API エンドポイント
 
 ### レッスン関連
 - `GET /api/categories` - カテゴリー一覧取得
@@ -110,11 +138,30 @@ bord_proje/
 - `GET /api/progress/:userId` - ユーザー進捗取得
 - `POST /api/progress` - 進捗保存
 
-## カスタマイズ
+## ✨ 主な改善点 (v2.0)
+
+### アーキテクチャ
+- ✅ モノリシックからクライアント・サーバー分離へ
+- ✅ Vanilla JSからReact + TypeScriptへ移行
+- ✅ カスタムCSSからTailwind CSSへ移行
+- ✅ Context APIによる状態管理の実装
+
+### 開発体験
+- ✅ Viteによる高速開発サーバー・ビルド
+- ✅ TypeScriptによる型安全性
+- ✅ コンポーネントベースの再利用可能な設計
+- ✅ カスタムフックによるロジックの分離
+
+### コード品質
+- ✅ モジュール分割による保守性向上
+- ✅ APIルートの整理
+- ✅ 明確な責務分離
+
+## 🎨 カスタマイズ
 
 ### 新しいレッスンを追加
 
-`src/data/lessons.ts` の `lessons` 配列に新しいレッスンオブジェクトを追加:
+`server/src/data/lessons.ts` の `lessons` 配列に新しいレッスンオブジェクトを追加:
 
 ```typescript
 {
@@ -131,7 +178,7 @@ bord_proje/
   quiz: {
     question: 'クイズの質問',
     options: ['選択肢1', '選択肢2', '選択肢3', '選択肢4'],
-    correctAnswer: 0, // 正解のインデックス
+    correctAnswer: 0,
     explanation: '解説文'
   }
 }
@@ -139,21 +186,23 @@ bord_proje/
 
 ### 新しいカテゴリーを追加
 
-`src/data/lessons.ts` の `categories` 配列に追加:
+`server/src/data/lessons.ts` の `categories` 配列に追加:
 
 ```typescript
 { id: 'new-category', name: 'カテゴリー名', icon: '🎯' }
 ```
 
-## ライセンス
+## 📝 ライセンス
 
 MIT
 
-## 今後の拡張案
+## 🔮 今後の拡張案
 
-- データベース統合（現在はメモリ内保存）
-- ユーザー認証機能
-- 実際のSlack APIとの連携
-- より多くの学習コンテンツ
-- 学習証明書の発行
-- マルチ言語対応
+- [ ] データベース統合（PostgreSQL/MongoDB）
+- [ ] ユーザー認証機能（JWT）
+- [ ] 実際のSlack APIとの連携
+- [ ] より多くの学習コンテンツ
+- [ ] 学習証明書の発行
+- [ ] マルチ言語対応
+- [ ] ダークモード対応
+- [ ] ユニットテスト・E2Eテストの追加

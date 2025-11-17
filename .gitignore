@@ -8,3 +8,4 @@ __pycache__/
 *.py
 venv/
 env/
+package-lock.json
