@@ -1,6 +1,73 @@
 const API_BASE = window.location.origin;
 const USER_ID = 'user-' + Math.random().toString(36).substr(2, 9);
 
+// Toast notification utility
+class ToastManager {
+    constructor() {
+        this.container = document.getElementById('toast-container');
+    }
+
+    show(message, title = '', type = 'info', duration = 5000) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        const icons = {
+            error: '❌',
+            success: '✅',
+            info: 'ℹ️',
+            warning: '⚠️'
+        };
+
+        toast.innerHTML = `
+            <span class="toast-icon">${icons[type] || icons.info}</span>
+            <div class="toast-content">
+                ${title ? `<div class="toast-title">${title}</div>` : ''}
+                <div class="toast-message">${message}</div>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+
+        this.container.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, duration);
+    }
+
+    error(message, title = 'エラー') {
+        this.show(message, title, 'error');
+    }
+
+    success(message, title = '成功') {
+        this.show(message, title, 'success');
+    }
+
+    info(message, title = 'お知らせ') {
+        this.show(message, title, 'info');
+    }
+
+    warning(message, title = '警告') {
+        this.show(message, title, 'warning');
+    }
+}
+
+const toast = new ToastManager();
+
+// API Error Handler
+async function handleApiResponse(response) {
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const error = new Error(errorData.error || 'エラーが発生しました');
+        error.details = errorData.details;
+        error.code = errorData.code;
+        error.status = response.status;
+        throw error;
+    }
+    return response.json();
+}
+
 class SlackLearningApp {
     constructor() {
         this.categories = [];
@@ -23,9 +90,13 @@ class SlackLearningApp {
     async loadCategories() {
         try {
             const response = await fetch(`${API_BASE}/api/categories`);
-            this.categories = await response.json();
+            this.categories = await handleApiResponse(response);
         } catch (error) {
             console.error('Failed to load categories:', error);
+            toast.error(
+                error.details || 'カテゴリーの読み込みに失敗しました。ページを再読み込みしてください。',
+                'カテゴリー読み込みエラー'
+            );
         }
     }
 
@@ -35,29 +106,39 @@ class SlackLearningApp {
                 ? `${API_BASE}/api/lessons?category=${category}`
                 : `${API_BASE}/api/lessons`;
             const response = await fetch(url);
-            this.lessons = await response.json();
+            this.lessons = await handleApiResponse(response);
         } catch (error) {
             console.error('Failed to load lessons:', error);
+            toast.error(
+                error.details || 'レッスンの読み込みに失敗しました。',
+                'レッスン読み込みエラー'
+            );
         }
     }
 
     async loadLesson(lessonId) {
         try {
             const response = await fetch(`${API_BASE}/api/lessons/${lessonId}`);
-            this.currentLesson = await response.json();
+            this.currentLesson = await handleApiResponse(response);
             this.renderLessonDetail();
         } catch (error) {
             console.error('Failed to load lesson:', error);
+            toast.error(
+                error.details || 'レッスンの読み込みに失敗しました。',
+                error.message || 'レッスン読み込みエラー'
+            );
+            this.showLessonsList();
         }
     }
 
     async loadProgress() {
         try {
             const response = await fetch(`${API_BASE}/api/progress/${USER_ID}`);
-            const data = await response.json();
+            const data = await handleApiResponse(response);
             this.completedLessons = data.completedLessons || [];
         } catch (error) {
             console.error('Failed to load progress:', error);
+            // Progress loading error is not critical, don't show toast
         }
     }
 
@@ -73,12 +154,19 @@ class SlackLearningApp {
                     lessonId: lessonId
                 })
             });
-            const data = await response.json();
-            this.completedLessons.push(lessonId);
+            const data = await handleApiResponse(response);
+            if (!this.completedLessons.includes(lessonId)) {
+                this.completedLessons.push(lessonId);
+            }
             this.updateProgress();
+            toast.success('レッスンを完了しました！', '進捗更新');
             return data;
         } catch (error) {
             console.error('Failed to save progress:', error);
+            toast.error(
+                error.details || '進捗の保存に失敗しました。',
+                '進捗保存エラー'
+            );
         }
     }
 
@@ -234,7 +322,7 @@ class SlackLearningApp {
 
     async submitQuiz() {
         if (this.selectedQuizAnswer === null) {
-            alert('回答を選択してください');
+            toast.warning('回答を選択してください', 'クイズ回答');
             return;
         }
 
@@ -249,7 +337,7 @@ class SlackLearningApp {
                 })
             });
 
-            const result = await response.json();
+            const result = await handleApiResponse(response);
             this.showQuizResult(result);
 
             if (result.correct && !this.completedLessons.includes(this.currentLesson.id)) {
@@ -257,6 +345,10 @@ class SlackLearningApp {
             }
         } catch (error) {
             console.error('Failed to submit quiz:', error);
+            toast.error(
+                error.details || 'クイズの送信に失敗しました。もう一度お試しください。',
+                error.message || 'クイズ送信エラー'
+            );
         }
     }
 

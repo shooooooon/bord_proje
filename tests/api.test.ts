@@ -91,7 +91,9 @@ describe('Slack Learning App API', () => {
         .expect('Content-Type', /json/)
         .expect(404);
 
-      expect(response.body).toHaveProperty('error', 'Lesson not found');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('code', 'LESSON_NOT_FOUND');
+      expect(response.body.error).toContain('レッスンが見つかりません');
     });
 
     it('should return all lesson details', async () => {
@@ -134,7 +136,18 @@ describe('Slack Learning App API', () => {
         .send({ answer: 0 })
         .expect(404);
 
-      expect(response.body).toHaveProperty('error', 'Quiz not found');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('code', 'LESSON_NOT_FOUND');
+    });
+
+    it('should return 400 for missing answer', async () => {
+      const response = await request(app)
+        .post('/api/lessons/basics-001/quiz')
+        .send({})
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('code', 'ANSWER_REQUIRED');
     });
   });
 
@@ -181,7 +194,8 @@ describe('Slack Learning App API', () => {
         .send({ lessonId: 'basics-001' })
         .expect(400);
 
-      expect(response.body).toHaveProperty('error', 'Missing userId or lessonId');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('code', 'USER_ID_REQUIRED');
     });
 
     it('should return 400 for missing lessonId', async () => {
@@ -190,7 +204,18 @@ describe('Slack Learning App API', () => {
         .send({ userId: testUserId })
         .expect(400);
 
-      expect(response.body).toHaveProperty('error', 'Missing userId or lessonId');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('code', 'LESSON_ID_REQUIRED');
+    });
+
+    it('should return 404 for non-existent lesson', async () => {
+      const response = await request(app)
+        .post('/api/progress')
+        .send({ userId: testUserId, lessonId: 'non-existent-lesson' })
+        .expect(404);
+
+      expect(response.body).toHaveProperty('error');
+      expect(response.body).toHaveProperty('code', 'LESSON_NOT_FOUND');
     });
   });
 
