@@ -4,36 +4,62 @@ export const Sidebar = () => {
   const { categories, currentCategory, selectCategory } = useLearning();
 
   return (
-    <aside className="w-64 bg-white rounded-lg shadow-md p-6 sticky top-8 h-fit">
-      <h2 className="text-xl font-semibold text-primary mb-4">カテゴリー</h2>
+    <aside className="w-72 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-soft border border-gray-100 p-6 sticky top-8 h-fit animate-slide-up">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent mb-2">
+          カテゴリー
+        </h2>
+        <div className="h-1 w-16 bg-gradient-to-r from-primary-600 to-secondary-500 rounded-full" />
+      </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <button
           onClick={() => selectCategory(null)}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+          className={`group w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-300 ${
             currentCategory === null
-              ? 'bg-primary text-white'
-              : 'hover:bg-gray-100'
+              ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-medium scale-105'
+              : 'hover:bg-gray-100 hover:scale-105 hover:shadow-soft'
           }`}
         >
-          <span className="text-2xl">📚</span>
-          <span>すべて</span>
+          <div className={`text-3xl transition-transform duration-300 ${
+            currentCategory === null ? '' : 'group-hover:scale-110'
+          }`}>
+            📚
+          </div>
+          <span className="font-semibold">すべて</span>
+          {currentCategory === null && (
+            <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+          )}
         </button>
 
-        {categories.map((category) => (
+        {categories.map((category, index) => (
           <button
             key={category.id}
             onClick={() => selectCategory(category.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+            className={`group w-full flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-300 ${
               currentCategory === category.id
-                ? 'bg-primary text-white'
-                : 'hover:bg-gray-100'
+                ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-medium scale-105'
+                : 'hover:bg-gray-100 hover:scale-105 hover:shadow-soft'
             }`}
+            style={{ animationDelay: `${index * 50}ms` }}
           >
-            <span className="text-2xl">{category.icon}</span>
-            <span>{category.name}</span>
+            <div className={`text-3xl transition-transform duration-300 ${
+              currentCategory === category.id ? '' : 'group-hover:scale-110'
+            }`}>
+              {category.icon}
+            </div>
+            <span className="font-semibold">{category.name}</span>
+            {currentCategory === category.id && (
+              <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+            )}
           </button>
         ))}
+      </div>
+
+      <div className="mt-8 p-4 bg-gradient-to-br from-primary-50 to-secondary-50 rounded-xl border border-primary-100">
+        <p className="text-sm text-gray-700 leading-relaxed">
+          💡 <span className="font-semibold">Tip:</span> カテゴリーを選択して、効率的に学習を進めましょう！
+        </p>
       </div>
     </aside>
   );
