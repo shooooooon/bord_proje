@@ -71,6 +71,7 @@ async function handleApiResponse(response) {
 class SlackLearningApp {
     constructor() {
         this.categories = [];
+        this.allLessons = [];
         this.lessons = [];
         this.currentLesson = null;
         this.currentCategory = null;
@@ -82,9 +83,10 @@ class SlackLearningApp {
 
     async init() {
         await this.loadCategories();
+        await this.loadLessons();
         await this.loadProgress();
         this.renderCategories();
-        this.updateProgress();
+        await this.updateProgress();
     }
 
     async loadCategories() {
@@ -102,11 +104,14 @@ class SlackLearningApp {
 
     async loadLessons(category = null) {
         try {
-            const url = category
-                ? `${API_BASE}/api/lessons?category=${category}`
-                : `${API_BASE}/api/lessons`;
-            const response = await fetch(url);
-            this.lessons = await handleApiResponse(response);
+            if (this.allLessons.length === 0) {
+                const response = await fetch(`${API_BASE}/api/lessons`);
+                this.allLessons = await handleApiResponse(response);
+            }
+
+            this.lessons = category
+                ? this.allLessons.filter(lesson => lesson.category === category)
+                : this.allLessons;
         } catch (error) {
             console.error('Failed to load lessons:', error);
             toast.error(
@@ -158,7 +163,7 @@ class SlackLearningApp {
             if (!this.completedLessons.includes(lessonId)) {
                 this.completedLessons.push(lessonId);
             }
-            this.updateProgress();
+            await this.updateProgress();
             toast.success('レッスンを完了しました！', '進捗更新');
             return data;
         } catch (error) {
@@ -384,22 +389,17 @@ class SlackLearningApp {
         this.renderLessonDetail();
     }
 
-    updateProgress() {
-        const total = this.categories.length > 0 ?
-            (async () => {
-                if (this.lessons.length === 0) {
-                    await this.loadLessons();
-                }
-                return this.lessons.length;
-            })() : 0;
+    async updateProgress() {
+        if (this.allLessons.length === 0) {
+            await this.loadLessons();
+        }
 
-        Promise.resolve(total).then(totalLessons => {
-            const completed = this.completedLessons.length;
-            const percentage = totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0;
+        const totalLessons = this.allLessons.length;
+        const completed = this.completedLessons.length;
+        const percentage = totalLessons > 0 ? Math.round((completed / totalLessons) * 100) : 0;
 
-            document.getElementById('progress-fill').style.width = `${percentage}%`;
-            document.getElementById('progress-percentage').textContent = `${percentage}%`;
-        });
+        document.getElementById('progress-fill').style.width = `${percentage}%`;
+        document.getElementById('progress-percentage').textContent = `${percentage}%`;
     }
 
     goToNextLesson() {
